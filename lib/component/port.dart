@@ -108,6 +108,9 @@ class PortData {
         .color;
   }
 
+  Map<String, dynamic> toJson() =>
+      {'name': name, 'type': type, "is_mandatory": isMandatory};
+
   setPortState(PortState newState) {
     portState = newState;
   }

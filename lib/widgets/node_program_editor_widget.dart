@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:provider/provider.dart';
 
 import '../bloc/program/program_cubit.dart';
 import '../bloc/show_component_settings/show_component_settings_cubit.dart';
 import '../policy/builder_set_policy.dart';
 import '../providers/builder_style.dart';
+import '../providers/program_data_provider.dart';
 import 'diagram_app.dart';
 
 class NodeProgramEditor extends StatelessWidget {
@@ -13,6 +15,8 @@ class NodeProgramEditor extends StatelessWidget {
   final ThemeData? appTheme;
   final double? height;
   final double? width;
+  final String? programName;
+  final String? userName;
   final void Function(Map<String, dynamic> program)? onProgramEmitted;
   const NodeProgramEditor({
     super.key,
@@ -21,14 +25,26 @@ class NodeProgramEditor extends StatelessWidget {
     this.height,
     this.width,
     this.onProgramEmitted,
+    this.programName,
+    this.userName,
   });
 
   @override
   Widget build(BuildContext context) {
     BuilderSetPolicy policy = BuilderSetPolicy();
 
-    return ChangeNotifierProvider(
-      create: (context) => BuilderStyle(policy: policy),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => BuilderStyle(policy: policy),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ProgramDataProvider(
+            programName: "hello word",
+            authorName: userName,
+          ),
+        )
+      ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider(

@@ -1,5 +1,3 @@
-
-
 import 'components_parameters_types.dart';
 
 class ComponentParameter {
@@ -21,4 +19,18 @@ class ComponentParameter {
   void updateValue(dynamic newValue) {
     value = newValue;
   }
+
+  Map<String, dynamic> toJson() => {
+        "name": _name,
+        "value": value,
+        "option": _option,
+        "type": _type.toJson(),
+      };
+
+  ComponentParameter.fromJson(
+    Map<String, dynamic> json,
+  )   : _name = json["name"],
+        value = json["value"],
+        _option = json["option"],
+        _type = ComponentsParametersTypes.fromJson(json["type"]);
 }

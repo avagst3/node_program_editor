@@ -6,16 +6,19 @@ import 'package:provider/provider.dart';
 
 import '../component/port.dart';
 import '../models/builder_component_data.dart';
+import '../models/component_parameter.dart';
 import '../models/result.dart';
 import '../providers/builder_style.dart';
 
 mixin BasePolicy implements PolicySet {
   String? selectedComponentId;
+  String? selectedLinkId;
   String serializedDiagram = '{"components": [], "links": []}';
   List<String> componentList = [];
+  dynamic diagram;
+  Offset tapLinkPosition = Offset.zero;
 
   deleteAllComponents() {
-    // selectedComponentId = null;
     canvasWriter.model.removeAllComponents();
   }
 
@@ -90,6 +93,10 @@ mixin BasePolicy implements PolicySet {
     );
   }
 
+  hideLinkOption() {
+    selectedLinkId = null;
+  }
+
   updateAllComponentStyle() {
     canvasReader.model.getAllComponents().values.forEach(
       (component) {
@@ -105,9 +112,10 @@ mixin BasePolicy implements PolicySet {
   }
 
   addComponentDataWithPorts(ComponentData data, BuildContext context) {
-    var componentData = _addPortOnComponent(data, context);
+    var componentData = addPortOnComponent(data, context, 0);
     canvasWriter.model.addComponent(componentData);
-    int zOrder = canvasWriter.model.moveComponentToTheFront(componentData.id);
+    int zOrder =
+        canvasWriter.model.moveComponentToTheFront(componentData.id) - 1;
     componentData.data.portData.forEach((PortData port) {
       var newPort = ComponentData(
         size: port.size,
@@ -117,21 +125,42 @@ mixin BasePolicy implements PolicySet {
             componentData.getPointOnComponent(port.alignmentOnComponent) -
             port.size.center(Offset.zero),
       );
+      newPort.zOrder = zOrder;
       canvasWriter.model.addComponent(newPort);
       canvasWriter.model.setComponentParent(newPort.id, componentData.id);
-      newPort.zOrder = zOrder - 1;
     });
     componentList.add(componentData.id);
   }
 
-  ComponentData _addPortOnComponent(ComponentData data, BuildContext context) {
+  connectComponents(
+      String? sourceComponentId, String? targetComponentId, Color color) {
+    if (sourceComponentId == null || targetComponentId == null) return false;
+    if (!canConnectThesePorts(sourceComponentId, targetComponentId)) {
+      return false;
+    }
+
+    canvasWriter.model.connectTwoComponents(
+      sourceComponentId: sourceComponentId,
+      targetComponentId: targetComponentId,
+      linkStyle: LinkStyle(
+        arrowType: ArrowType.none,
+        color: color,
+        lineWidth: 4,
+      ),
+    );
+    hideAllHighLights();
+
+    return true;
+  }
+
+  addPortOnComponent(ComponentData data, BuildContext context, double offset) {
     int inputPortLen = data.data.inputData?.length;
     int outputPortLen = data.data.outputData?.length;
     double height = max(180, max(inputPortLen, outputPortLen) * 2 * 20);
     double width = (height * 5) / 3;
     var portComponent = ComponentData(
       size: Size(width, height),
-      position: data.position,
+      position: data.position + Offset(offset, offset),
       type: data.type,
       data: BuilderComponentData.copy(data.data),
     );
@@ -213,34 +242,183 @@ mixin BasePolicy implements PolicySet {
   }
 
   void highlightComponent(String componentId) {
-    if (!canvasReader.model.componentExist(componentId))
+    if (!canvasReader.model.componentExist(componentId)) {
       return; // Vérifie si le composant existe
+    }
     canvasReader.model.getComponent(componentId).data.showHighlight();
     canvasReader.model.getComponent(componentId).updateComponent();
     selectedComponentId = componentId;
   }
 
   void hideComponentHighlight(String? componentId) {
-    if (componentId == null || !canvasReader.model.componentExist(componentId))
+    if (componentId == null ||
+        !canvasReader.model.componentExist(componentId)) {
       return;
+    }
     canvasReader.model.getComponent(componentId).data.hideHighlight();
     canvasReader.model.getComponent(componentId).updateComponent();
     selectedComponentId = null;
   }
 
-  // Save the diagram to String in json format.
-  void serialize() {
-    serializedDiagram = canvasReader.model.serializeDiagram();
+  showLinkOption(String linkId, Offset position) {
+    selectedLinkId = linkId;
+    tapLinkPosition = position;
   }
 
-  // Load the diagram from json format. Do it cautiously, to prevent unstable state remove the previous diagram (id collision can happen).
-  void deserialize() {
-    canvasWriter.model.removeAllComponents();
-    canvasWriter.model.deserializeDiagram(
-      serializedDiagram,
-      decodeCustomComponentData: BuilderComponentData.fromJson,
-      decodeCustomLinkData: null,
-    );
+  // Save the diagram to String in json format.
+  serialize(BuilderStyle context) {
+    diagram = exportDiagramToJson(context);
+    return diagram;
+  }
+
+  importDiagramFromJson(
+      BuildContext context, dynamic jsonDiagram, BuilderStyle styleProvider) {
+    deleteAllComponents();
+    styleProvider.fromJson(jsonDiagram["entry"]);
+    for (var componentJson in jsonDiagram["components"]) {
+      var mainComponent = ComponentData(
+        id: componentJson["id"],
+        type: componentJson["type"],
+        data: BuilderComponentData(
+          parameters: (componentJson["parameters"] as List)
+              .map((param) => ComponentParameter.fromJson(param))
+              .toList(),
+          inputData: [], // Non utilisé lors du chargement
+          outputData: [], // Non utilisé lors du chargement
+          isOnMenu: false,
+          color: Color(int.parse(componentJson["color"], radix: 16)),
+          name: componentJson["name"],
+        ),
+        position: Offset(
+          componentJson["position"]["x"],
+          componentJson["position"]["y"],
+        ),
+        size: Size(
+          componentJson["size"]["width"],
+          componentJson["size"]["height"],
+        ),
+      );
+
+      canvasWriter.model.addComponent(mainComponent);
+      componentList.add(mainComponent.id);
+
+      for (var portJson in componentJson["ports"]) {
+        var portData = PortData(
+          id: portJson["id"],
+          type: portJson["type"],
+          name: portJson["name"],
+          isMandatory: portJson["isMandatory"],
+          isInput: portJson["isInput"],
+          size: Size(20, 20), // Taille fixe comme dans le code original
+          alignmentOnComponent: Alignment(
+            portJson["alignment"]["x"],
+            portJson["alignment"]["y"],
+          ),
+          builderStyle: styleProvider,
+        );
+
+        // Calcul de la position relative au parent
+        final portPosition = mainComponent.position +
+            mainComponent.getPointOnComponent(portData.alignmentOnComponent) -
+            portData.size.center(Offset.zero);
+
+        var portComponent = ComponentData(
+          id: portJson["id"],
+          type: 'port',
+          data: portData,
+          position: portPosition,
+          size: portData.size,
+        );
+        portComponent.zOrder -= 1;
+
+        canvasWriter.model.addComponent(portComponent);
+        canvasWriter.model
+            .setComponentParent(portComponent.id, mainComponent.id);
+      }
+    }
+
+    for (var connectionJson in jsonDiagram["connections"]) {
+      final sourcePortId = connectionJson["source"]["port_id"];
+      final targetPortId = connectionJson["target"]["port_id"];
+      final color = Color(int.parse(connectionJson["color"], radix: 16));
+
+      connectComponents(sourcePortId, targetPortId, color);
+    }
+
+    updateAllComponentStyle();
+  }
+
+  exportDiagramToJson(BuilderStyle context) {
+    Map<String, dynamic> jsonDiagram = {
+      "components": [],
+      "connections": [],
+    };
+    for (ComponentData component
+        in canvasReader.model.getAllComponents().values) {
+      if (component.type != 'port') {
+        BuilderComponentData componentData = component.data;
+
+        List<Map<String, dynamic>> ports = [];
+        for (String portId in component.childrenIds) {
+          var portComponent = canvasReader.model.getComponent(portId);
+          PortData portData = portComponent.data as PortData;
+          ports.add({
+            "id": portId,
+            "name": portData.name,
+            "type": portData.type,
+            "isInput": portData.isInput,
+            "isMandatory": portData.isMandatory,
+            "alignment": {
+              "x": portData.alignmentOnComponent.x,
+              "y": portData.alignmentOnComponent.y,
+            },
+          });
+        }
+
+        jsonDiagram["components"].add({
+          "id": component.id,
+          "name": componentData.name,
+          "type": component.type,
+          "parameters":
+              componentData.parameters.map((param) => param.toJson()).toList(),
+          "position": {"x": component.position.dx, "y": component.position.dy},
+          "size": {
+            "width": component.size.width,
+            "height": component.size.height
+          },
+          "color": componentData.color.value.toRadixString(16),
+          "ports": ports,
+        });
+      }
+    }
+    if (componentList.isNotEmpty) {
+      var allLinks = canvasReader.model.getAllLinks().values;
+      for (var link in allLinks) {
+        String sourcePortId = link.sourceComponentId;
+        String targetPortId = link.targetComponentId;
+
+        var sourcePort = canvasReader.model.getComponent(sourcePortId);
+        var targetPort = canvasReader.model.getComponent(targetPortId);
+
+        jsonDiagram["connections"].add({
+          "source": {
+            "block_id": sourcePort.parentId,
+            "port_id": sourcePortId,
+            "port_name": (sourcePort.data as PortData).name,
+          },
+          "target": {
+            "block_id": targetPort.parentId,
+            "port_id": targetPortId,
+            "port_name": (targetPort.data as PortData).name,
+          },
+          "color": link.linkStyle.color.value.toRadixString(16),
+        });
+      }
+    }
+
+    jsonDiagram["entry"] = context.toJson();
+
+    return jsonDiagram;
   }
 
   Result<Map<String, dynamic>, bool> toProgram() {

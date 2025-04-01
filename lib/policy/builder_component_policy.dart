@@ -13,6 +13,7 @@ mixin BuilderComponentPolicy implements BasePolicy, ComponentPolicy {
     var component = canvasReader.model.getComponent(componentId);
 
     if (component.type == 'port') {
+      
       bool connected =
           connectComponents(selectedPortId, componentId, component.data.color);
       deselectAllPorts();
@@ -67,24 +68,5 @@ mixin BuilderComponentPolicy implements BasePolicy, ComponentPolicy {
     lastFocalPoint = details.localFocalPoint;
   }
 
-  bool connectComponents(
-      String? sourceComponentId, String? targetComponentId, Color color) {
-    if (sourceComponentId == null || targetComponentId == null) return false;
-    if (!canConnectThesePorts(sourceComponentId, targetComponentId)) {
-      return false;
-    }
-
-    canvasWriter.model.connectTwoComponents(
-      sourceComponentId: sourceComponentId,
-      targetComponentId: targetComponentId,
-      linkStyle: LinkStyle(
-        arrowType: ArrowType.none,
-        color: color,
-        lineWidth: 4,
-      ),
-    );
-    hideAllHighLights();
-
-    return true;
-  }
+  
 }

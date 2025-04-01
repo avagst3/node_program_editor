@@ -42,7 +42,7 @@ class _FolderFieldState extends State<FolderField> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               SizedBox(
-                width: widget.width * 0.5,
+                width: widget.width * 0.25,
                 child: Text(
                   widget.controller.text,
                   overflow: TextOverflow.ellipsis,

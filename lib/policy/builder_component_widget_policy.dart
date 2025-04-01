@@ -5,8 +5,6 @@ import 'package:provider/provider.dart';
 
 import '../bloc/show_component_settings/show_component_settings_cubit.dart';
 import '../component/port.dart';
-import '../models/builder_component_data.dart';
-import '../providers/builder_style.dart';
 import 'base_policy.dart';
 
 mixin BuilderComponentWidgetPolicy
@@ -96,7 +94,7 @@ mixin BuilderComponentWidgetPolicy
   }
 
   _copyComponentDataWithPorts(ComponentData data, context) {
-    var componentData = _addPortOnComponent(data, context);
+    var componentData = addPortOnComponent(data, context, 30);
     canvasWriter.model.addComponent(componentData);
     int zOrder = canvasWriter.model.moveComponentToTheFront(componentData.id);
     componentData.data.portData.forEach((PortData port) {
@@ -108,50 +106,12 @@ mixin BuilderComponentWidgetPolicy
             componentData.getPointOnComponent(port.alignmentOnComponent) -
             port.size.center(Offset.zero),
       );
+      newPort.zOrder = zOrder - 1;
       canvasWriter.model.addComponent(newPort);
       canvasWriter.model.setComponentParent(newPort.id, componentData.id);
-      newPort.zOrder = zOrder - 1;
     });
     hideComponentHighlight(data.id);
     componentList.add(componentData.id);
-  }
-
-  ComponentData _addPortOnComponent(ComponentData data, BuildContext context) {
-    var portComponent = ComponentData(
-      size: const Size(300, 180),
-      position: data.position + Offset(30, 30),
-      type: data.type,
-      data: BuilderComponentData.copy(data.data),
-    );
-
-    portComponent.data.inputData?.forEach((input) {
-      try {
-        portComponent.data.portData.add(_getCopyPortData(
-            Alignment.centerLeft, true, input, portComponent.id, context));
-      } catch (e) {}
-    });
-    portComponent.data.outputData?.forEach((output) {
-      portComponent.data.portData.add(_getCopyPortData(
-          Alignment.centerRight, false, output, portComponent.id, context));
-    });
-
-    return portComponent;
-  }
-
-  PortData _getCopyPortData(Alignment alignment, bool isInput,
-      Map<String, dynamic> data, String id, BuildContext context) {
-    var portData = PortData(
-      id: id,
-      type: data["type"],
-      isInput: isInput,
-      size: const Size(20, 20),
-      alignmentOnComponent: alignment,
-      isMandatory: data["mandatory"] ? true : data["mandatory"],
-      builderStyle: Provider.of<BuilderStyle>(context, listen: false),
-      name: data["name"],
-    );
-    portData.setPortState(arePortsVisible ? PortState.shown : PortState.hidden);
-    return portData;
   }
 
   Widget highlight(ComponentData componentData, Color color) {

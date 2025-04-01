@@ -145,6 +145,8 @@ class _BuilderComponentSettingsState extends State<BuilderComponentSettings> {
                                       as TextEditingController,
                                 );
                               case ComponentsParametersTypes.DROPDOWN:
+                                controllers[param.name]!.text =
+                                      param.value ?? param.option.first;
                                 return DropDown(
                                   height: 40,
                                   width: widget.width,

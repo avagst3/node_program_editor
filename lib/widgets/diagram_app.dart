@@ -42,9 +42,11 @@ class DiagramAppState extends State<DiagramApp> {
     diagramEditorContext = DiagramEditorContext(
       policySet: widget.myPolicySet,
     );
+
     diagramEditorContextMiniMap = DiagramEditorContext.withSharedModel(
-        diagramEditorContext,
-        policySet: miniMapPolicySet);
+      diagramEditorContext,
+      policySet: miniMapPolicySet,
+    );
     context
         .read<BuilderStyle>()
         .initData(widget.blocks["input_types"] as List<String>);
@@ -53,6 +55,7 @@ class DiagramAppState extends State<DiagramApp> {
 
   @override
   Widget build(BuildContext context) {
+    diagramEditorContext = diagramEditorContext;
     return Scaffold(
       body: SafeArea(
         child: Stack(
@@ -73,7 +76,8 @@ class DiagramAppState extends State<DiagramApp> {
                               diagramEditorContextMiniMap,
                           width: widget.width * 0.2,
                           height: widget.height,
-                          policy: widget.myPolicySet,
+                          policy: diagramEditorContext.policySet
+                              as BuilderSetPolicy,
                         ),
                       );
 
@@ -129,5 +133,4 @@ class DiagramAppState extends State<DiagramApp> {
       ),
     );
   }
-
 }

@@ -15,7 +15,8 @@ class ParametersMenu extends StatelessWidget {
     super.key,
     required this.diagramEditorContextMiniMap,
     required this.width,
-    required this.height, required this.policy,
+    required this.height,
+    required this.policy,
   });
 
   final DiagramEditorContext diagramEditorContextMiniMap;
@@ -49,14 +50,6 @@ class ParametersMenu extends StatelessWidget {
                 ),
               )
             ],
-          ),
-          Positioned(
-            bottom: height * 0.01,
-            left: width * 0.02,
-            child: IconButton(
-              onPressed: () => navBloc.add(MenuEventClose()),
-              icon: Icon(Icons.close),
-            ),
           ),
         ],
       ),

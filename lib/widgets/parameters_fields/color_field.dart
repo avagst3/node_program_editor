@@ -30,7 +30,7 @@ class _ColorFieldState extends State<ColorField> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            height: widget.height * 0.5,
+            height: widget.height * 0.25,
             child: AutoSizeText(
               widget.label,
               style: TextStyle(

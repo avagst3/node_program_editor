@@ -10,18 +10,7 @@ class BuilderStyle extends ChangeNotifier {
 
   BuilderStyle({required this.policy});
 
-  Color _gridBackgroundColor = Color(0xFFFFFFFF);
-  Color _gridColor = Color(0xFFFFFFFF);
-
   List<EntryTypesData> get entriesColors => _entriesColors;
-  Color get gridBackgroundColor => _gridBackgroundColor;
-  Color get gridColor => _gridColor;
-
-  void setGridBackgroundColor(Color newColor) {
-    _gridBackgroundColor = newColor;
-
-    notifyListeners();
-  }
 
   void addEntryTypeData(EntryTypesData data) {
     _entriesColors.add(data);
@@ -31,11 +20,6 @@ class BuilderStyle extends ChangeNotifier {
   void updateEntryColor(EntryTypesData data, Color color) {
     _entriesColors[_entriesColors.indexOf(data)].updateColor(color);
     policy.updateAllComponentStyle();
-    notifyListeners();
-  }
-
-  void updateGridColor(Color newColor) {
-    _gridColor = newColor;
     notifyListeners();
   }
 
@@ -49,5 +33,22 @@ class BuilderStyle extends ChangeNotifier {
         ),
       );
     }
+  }
+
+  List<Map<String, dynamic>> toJson() {
+    return _entriesColors.map((entries) {
+      return entries.toJson();
+    }).toList();
+  }
+
+  void fromJson(List<dynamic> colorsData) {
+    colorsData.forEach((colorData) {
+      print(colorData);
+      var tempEnt = EntryTypesData.fromJson(colorData);
+      if (_entriesColors.any((entry) => entry.name == colorData["name"])) {
+      } else {
+        _entriesColors.add(tempEnt);
+      }
+    });
   }
 }

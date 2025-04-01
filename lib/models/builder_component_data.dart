@@ -27,7 +27,7 @@ class BuilderComponentData {
   // Function used to deserialize the diagram. Must be passed to `canvasWriter.model.deserializeDiagram` for proper deserialization.
   BuilderComponentData.fromJson(
     Map<String, dynamic> json,
-  )   : isHighlightVisible = json['highlight'],
+  )   : isHighlightVisible = false,
         parameters = json["parameters"],
         name = json["name"],
         isOnMenu = true,
@@ -54,6 +54,11 @@ class BuilderComponentData {
                 ((color.b * 255).round()))
             .toRadixString(16),
         'name': name,
+        'parameters':parameters.map((parameter)=> parameter.toJson()).toList(),
+        'input':inputData,
+        'output':outputData,
+        'on_menu':isOnMenu,
+        'port_data':portData.map((port)=> port.toJson()).toList()
       };
   BuilderComponentData({
     required this.parameters,

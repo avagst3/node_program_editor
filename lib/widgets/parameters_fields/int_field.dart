@@ -24,7 +24,7 @@ class IntField extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            height: height * 0.5,
+            height: height * 0.25,
             child: AutoSizeText(
               label,
               style: TextStyle(

@@ -5,13 +5,13 @@ class StrField extends StatelessWidget {
   final double height;
   final double width;
   final String label;
-  final TextEditingController controller;
+  final TextEditingController? controller;
   const StrField({
     super.key,
     required this.height,
     required this.width,
     required this.label,
-    required this.controller,
+    this.controller,
   });
 
   @override
@@ -23,7 +23,7 @@ class StrField extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            height: height * 0.5,
+            height: height * 0.25,
             child: AutoSizeText(
               label,
               style: TextStyle(

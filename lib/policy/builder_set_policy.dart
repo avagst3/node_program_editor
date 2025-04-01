@@ -1,4 +1,6 @@
 import 'package:diagram_editor/diagram_editor.dart';
+import 'builder_link_control_policy.dart';
+import 'builder_link_widget_policy.dart';
 
 import 'base_policy.dart';
 import 'builder_canvas_display_policy.dart';
@@ -9,6 +11,7 @@ import 'builder_component_widget_policy.dart';
 import 'builder_init_policy.dart';
 import 'builder_link_attachment_policy.dart';
 import 'builder_link_join_control_policy.dart';
+
 class BuilderSetPolicy extends PolicySet
     with
         BasePolicy,
@@ -19,7 +22,8 @@ class BuilderSetPolicy extends PolicySet
         BuilderComponentWidgetPolicy,
         BuilderCanvasDisplayPolicy,
         CanvasControlPolicy,
-        LinkControlPolicy,
+        BuilderLinkControlPolicy,
+        BuilderLinkWidgetPolicy,
         BuilderLinkAttachmentPolicy,
         BuilderLinkJoinControlPolicy,
         LinkJointControlPolicy {}

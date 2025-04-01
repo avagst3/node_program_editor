@@ -46,7 +46,7 @@ class _FileFieldState extends State<FileField> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               SizedBox(
-                width: widget.width * 0.5,
+                width: widget.width * 0.25,
                 child: Text(
                   widget.controller.text,
                   overflow: TextOverflow.ellipsis,
@@ -58,6 +58,7 @@ class _FileFieldState extends State<FileField> {
                       await FilePicker.platform.pickFiles(
                     allowedExtensions: widget.allowedExtensions,
                     allowMultiple: widget.allowMultiple,
+                    type: FileType.custom,
                   );
                   if (pickedFile != null) {
                     setState(() {

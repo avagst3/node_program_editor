@@ -37,10 +37,6 @@ mixin BuilderComponentPolicy implements BasePolicy, ComponentPolicy {
             var oprt = canvasReader.model.getComponent(name);
             var par = canvasReader.model.getComponent(oprt.parentId!);
             var parname = canvasReader.model.getComponent(par.id);
-            print(par.type);
-            print(par);
-            print(parname);
-            print(parname.type);
           },
         );
       });

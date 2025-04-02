@@ -69,7 +69,6 @@ class _ColorFieldState extends State<ColorField> {
                       ),
                       'Pick a component color');
                   Color cl = await pickedColor;
-                  print("${cl.r * 255}, ${cl.g * 255}, ${cl.b * 255}");
                   setState(() {
                     widget.controller.text =
                         "${(cl.r * 255).toInt()}, ${(cl.g * 255).toInt()}, ${(cl.b * 255).toInt()}";

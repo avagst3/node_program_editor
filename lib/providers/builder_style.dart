@@ -43,7 +43,6 @@ class BuilderStyle extends ChangeNotifier {
 
   void fromJson(List<dynamic> colorsData) {
     colorsData.forEach((colorData) {
-      print(colorData);
       var tempEnt = EntryTypesData.fromJson(colorData);
       if (_entriesColors.any((entry) => entry.name == colorData["name"])) {
       } else {

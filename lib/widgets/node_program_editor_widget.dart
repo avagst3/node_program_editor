@@ -11,8 +11,9 @@ import '../providers/program_data_provider.dart';
 import 'diagram_app.dart';
 
 class NodeProgramEditor extends StatelessWidget {
+  /// A node editor widget
+  /// Create a node widget where you can create,load and save program
   final Map<String, dynamic> data;
-  final ThemeData? appTheme;
   final double? height;
   final double? width;
   final String? programName;
@@ -21,7 +22,6 @@ class NodeProgramEditor extends StatelessWidget {
   const NodeProgramEditor({
     super.key,
     required this.data,
-    this.appTheme,
     this.height,
     this.width,
     this.onProgramEmitted,

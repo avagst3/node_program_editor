@@ -31,3 +31,4 @@ test_data.json
 .flutter-plugins
 .flutter-plugins-dependencies
 build/
+*ephemeral

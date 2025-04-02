@@ -1,7 +1,7 @@
 name: node_program_editor
 description: "A new Flutter package project."
 version: 0.0.1
-homepage:
+homepage: https://github.com/avagst3/node_program_editor#
 
 environment:
   sdk: ^3.6.1

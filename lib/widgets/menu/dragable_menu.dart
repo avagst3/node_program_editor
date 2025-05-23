@@ -4,15 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/menu/menu_bloc.dart';
+import '../../models/block_template.dart';
 import '../../models/builder_component_data.dart';
-import '../../models/component_parameter.dart';
-import '../../models/components_parameters_types.dart';
 import '../../policy/base_policy.dart';
 
 class DraggableMenu extends StatelessWidget {
   final double width;
   final BasePolicy policy;
-  final List<Map<String, dynamic>> blocks;
+  final List<BlockTemplate> blocks;
   const DraggableMenu(
       {super.key,
       required this.policy,
@@ -99,37 +98,19 @@ class DraggableMenu extends StatelessWidget {
     );
   }
 
-  ComponentData _getData(Map<String, dynamic> block) {
+  ComponentData _getData(BlockTemplate block) {
     return ComponentData(
       size: Size(width, 100),
       minSize: const Size(80, 64),
       data: BuilderComponentData(
         color: Color(0xFFFFF6FA),
-        name: block["name"],
-        parameters: block["parameter"].map<ComponentParameter>(
-          (parameter) {
-            return ComponentParameter(
-              parameter["name"],
-              switch (parameter["type"]) {
-                "TEXT" => ComponentsParametersTypes.STRING_FIELD,
-                "INT" => ComponentsParametersTypes.INT_FIELD,
-                "FLOAT" => ComponentsParametersTypes.FLOAT_FIELD,
-                "FILE" => ComponentsParametersTypes.FILE_FIELD,
-                "FOLDER" => ComponentsParametersTypes.FOLDER_FIELD,
-                "COLOR" => ComponentsParametersTypes.COLOR_FIELD,
-                "DROPDOWN" => ComponentsParametersTypes.DROPDOWN,
-                null => ComponentsParametersTypes.STRING_FIELD,
-                Object() => ComponentsParametersTypes.STRING_FIELD,
-              },
-              parameter["value"],
-            );
-          },
-        ).toList(),
-        inputData: block["input"],
-        outputData: block["output"],
+        name: block.name,
+        parameters: block.parameters,
+        inputData: block.inputData,
+        outputData: block.outputData,
         isOnMenu: true,
       ),
-      type: block["name"],
+      type: block.type,
     );
   }
 }

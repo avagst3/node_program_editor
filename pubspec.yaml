@@ -1,6 +1,6 @@
 name: node_program_editor
-description: "A new Flutter package project."
-version: 0.0.1
+description: "A program builder widget inspired by LabView"
+version: 0.0.2
 homepage: https://github.com/avagst3/node_program_editor#
 
 environment:
@@ -17,6 +17,7 @@ dependencies:
   flutter_colorpicker: ^1.1.0
   auto_size_text: ^3.0.0
   file_picker: ^9.2.1
+  meta: ^1.15.0
 
 dev_dependencies:
   flutter_test:

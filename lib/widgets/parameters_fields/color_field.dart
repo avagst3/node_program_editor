@@ -1,6 +1,8 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../providers/text_provider.dart';
 import 'color_picker_dialog.dart';
 
 class ColorField extends StatefulWidget {
@@ -67,7 +69,7 @@ class _ColorFieldState extends State<ColorField> {
                         int.parse(widget.controller.text.split(',')[2]),
                         1,
                       ),
-                      'Pick a component color');
+                      Provider.of<TextProvider>(context, listen: false));
                   Color cl = await pickedColor;
                   setState(() {
                     widget.controller.text =

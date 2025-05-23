@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:diagram_editor/diagram_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:node_program_editor/models/io__data_template.dart';
 import 'package:provider/provider.dart';
 
 import '../component/port.dart';
@@ -225,17 +226,17 @@ mixin BasePolicy implements PolicySet {
     });
   }
 
-  PortData _getPortData(Alignment alignment, bool isInput,
-      Map<String, dynamic> data, String id, BuildContext context) {
+  PortData _getPortData(Alignment alignment, bool isInput, IoDataTemplate data,
+      String id, BuildContext context) {
     var portData = PortData(
       id: id,
-      type: data["type"],
+      type: data.type,
       isInput: isInput,
       size: const Size(20, 20),
       alignmentOnComponent: alignment,
-      isMandatory: data["mandatory"] ? true : data["mandatory"],
+      isMandatory: data.isMandatory,
       builderStyle: Provider.of<BuilderStyle>(context, listen: false),
-      name: data["name"],
+      name: data.name,
     );
     portData.setPortState(arePortsVisible ? PortState.shown : PortState.hidden);
     return portData;
@@ -428,9 +429,9 @@ mixin BasePolicy implements PolicySet {
     for (var componentId in componentList) {
       var component = canvasReader.model.getComponent(componentId);
       BuilderComponentData componentData = component.data;
-      Map<String, dynamic> parameters = {};
+      List<Map<String, dynamic>> parameters = [];
       for (var parameter in componentData.parameters) {
-        parameters[parameter.name] = parameter.value;
+        parameters.add({parameter.name: parameter.value});
       }
       var io = fetchBlockIO(component);
       if (io is Success) {
@@ -475,7 +476,7 @@ mixin BasePolicy implements PolicySet {
                 "input_name": portData.name,
                 "depend_block_name": linkedPortParent.type,
                 "depend_block_id": linkedPortParent.id,
-                "depend_on_block_output": linkedPortData.name,
+                "depend_on_block_output_name": linkedPortData.name,
               });
             } else {
               outputs.add(

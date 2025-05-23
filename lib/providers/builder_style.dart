@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import '../models/entry_types_data.dart';
@@ -23,14 +22,10 @@ class BuilderStyle extends ChangeNotifier {
     notifyListeners();
   }
 
-  void initData(List<String> data) {
+  void initData(List<EntryTypesData> data) {
     for (var entry in data) {
       _entriesColors.add(
-        EntryTypesData(
-          entry,
-          Color((math.Random().nextDouble() * 0xFFFFFF).toInt())
-              .withOpacity(1.0),
-        ),
+        entry
       );
     }
   }

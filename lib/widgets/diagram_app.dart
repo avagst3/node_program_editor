@@ -1,9 +1,9 @@
 import 'package:diagram_editor/diagram_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
 
 import '../bloc/menu/menu_bloc.dart';
+import '../models/diagram_data.dart';
 import '../policy/builder_set_policy.dart';
 import '../policy/minimap_policy.dart';
 import '../providers/builder_style.dart';
@@ -11,14 +11,14 @@ import 'menu/dragable_menu.dart';
 import 'menu/parameters_menu.dart';
 
 class DiagramApp extends StatefulWidget {
-  final Map<String, dynamic> blocks;
+  final DiagramData diagramData;
 
   final BuilderSetPolicy myPolicySet;
   final double height;
   final double width;
   const DiagramApp({
     super.key,
-    required this.blocks,
+    required this.diagramData,
     required this.myPolicySet,
     required this.height,
     required this.width,
@@ -49,7 +49,7 @@ class DiagramAppState extends State<DiagramApp> {
     );
     context
         .read<BuilderStyle>()
-        .initData(widget.blocks["input_types"] as List<String>);
+        .initData(widget.diagramData.entryData);
     super.initState();
   }
 
@@ -107,7 +107,7 @@ class DiagramAppState extends State<DiagramApp> {
                         left: 0,
                         child: DraggableMenu(
                           policy: widget.myPolicySet,
-                          blocks: widget.blocks["blocks"],
+                          blocks: widget.diagramData.blocksData,
                           width: widget.width * 0.15,
                         ),
                       );

@@ -14,6 +14,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
   }
 
   void _init() {
+    // ignore: invalid_use_of_visible_for_testing_member
     emit(MenuOpened());
   }
 

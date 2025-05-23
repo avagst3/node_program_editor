@@ -13,7 +13,6 @@ mixin BuilderComponentPolicy implements BasePolicy, ComponentPolicy {
     var component = canvasReader.model.getComponent(componentId);
 
     if (component.type == 'port') {
-      
       bool connected =
           connectComponents(selectedPortId, componentId, component.data.color);
       deselectAllPorts();
@@ -31,14 +30,12 @@ mixin BuilderComponentPolicy implements BasePolicy, ComponentPolicy {
       cpt.childrenIds.forEach((element) {
         var prt = canvasReader.model.getComponent(element);
         var con = prt.connections;
-        con.forEach(
-          (element) {
-            var name = element.otherComponentId;
-            var oprt = canvasReader.model.getComponent(name);
-            var par = canvasReader.model.getComponent(oprt.parentId!);
-            var parname = canvasReader.model.getComponent(par.id);
-          },
-        );
+        for (var element in con) {
+          var name = element.otherComponentId;
+          var oprt = canvasReader.model.getComponent(name);
+          var par = canvasReader.model.getComponent(oprt.parentId!);
+          canvasReader.model.getComponent(par.id);
+        }
       });
     }
   }
@@ -63,6 +60,4 @@ mixin BuilderComponentPolicy implements BasePolicy, ComponentPolicy {
 
     lastFocalPoint = details.localFocalPoint;
   }
-
-  
 }

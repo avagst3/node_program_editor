@@ -14,6 +14,7 @@ class SettingsNavigationBloc
     on<SettingsNavigationToDiagramSettings>(_toDiagramSettings);
   }
 
+  // ignore: invalid_use_of_visible_for_testing_member
   void _init() => emit(SettingsNavigationOnBlockSettings());
 
   FutureOr<void> _toBlockSettings(SettingsNavigationToBlockSettings event,

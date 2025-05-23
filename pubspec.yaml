@@ -1,6 +1,6 @@
 name: node_program_editor
 description: "A drag and drop UI to create json block sequence, inspired by LabView and Simulink"
-version: 1.0.0
+version: 1.0.1
 homepage: https://github.com/avagst3/node_program_editor#
 
 environment:

@@ -1,12 +1,17 @@
 ## 0.0.1
 
-Create the package
+- Create the package
 
 
 ## 0.0.2
 
-First Stable
+- First Stable
 
 ## 1.0.0
 
-Since version 1.0.0, we start replacing all json use for dart class to add more flexiblity. 
+- Change usage of json to usage of dart object
+- Add object to describe app texts
+
+## 1.0.1
+
+-  Add example code 

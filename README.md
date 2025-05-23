@@ -15,9 +15,6 @@ The package provide a NodeProgramEditor widget witch is an editor dashboard who 
 
 ![alt text](image.png)
 
-## Last features
-
-Since version 1.0.0, we start replacing all json use for dart class to add more flexiblity. 
 
 ## RoadMap
 

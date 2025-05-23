@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:node_program_editor/models/io__data_template.dart';
 
 import '../component/port.dart';
 import 'component_parameter.dart';
@@ -7,8 +8,8 @@ class BuilderComponentData {
   final Color color;
   String name;
   final List<ComponentParameter> parameters;
-  final dynamic inputData;
-  final dynamic outputData;
+  final List<IoDataTemplate> inputData;
+  final List<IoDataTemplate> outputData;
   final bool isOnMenu;
   List<PortData> portData = [];
 
@@ -55,8 +56,8 @@ class BuilderComponentData {
             .toRadixString(16),
         'name': name,
         'parameters':parameters.map((parameter)=> parameter.toJson()).toList(),
-        'input':inputData,
-        'output':outputData,
+        'input':inputData.map((data)=>data.toJson()).toList(),
+        'output':outputData.map((data)=>data.toJson()).toList(),
         'on_menu':isOnMenu,
         'port_data':portData.map((port)=> port.toJson()).toList()
       };

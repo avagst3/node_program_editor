@@ -9,21 +9,6 @@ The package provide a NodeProgramEditor widget witch is an editor dashboard who 
 
 ![alt text](image.png)
 
-## Installation
-
-to install the project add this following line to your pubspec.yaml, under dependencies:
-
-```YAML
-node_program_editor:
-    git:
-      url : https://github.com/avagst3/node_program_editor.git
-```
-
-then run 
-```shell
-flutter pub get
-```
-
 
 ## How to use 
 

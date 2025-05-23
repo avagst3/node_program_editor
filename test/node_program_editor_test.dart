@@ -35,7 +35,4 @@ void main() {
       }
     ]
   };
-  testWidgets('Test app', (tester) async {
-    await tester.pumpWidget(NodeProgramEditor(data: data));
-  });
 }

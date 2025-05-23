@@ -2,7 +2,6 @@ import 'package:diagram_editor/diagram_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../bloc/menu/menu_bloc.dart';
 import '../../bloc/settings_navigation/settings_navigation_bloc.dart';
 import '../../policy/builder_set_policy.dart';
 import '../parameters_menu_widgets/setting_box.dart';
@@ -23,7 +22,6 @@ class ParametersMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final navBloc = BlocProvider.of<MenuBloc>(context);
     return SizedBox(
       height: height,
       child: Stack(

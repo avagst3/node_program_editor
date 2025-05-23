@@ -5,7 +5,7 @@ import 'package:meta/meta.dart';
 part 'show_component_settings_state.dart';
 
 class ShowComponentSettingsCubit extends Cubit<ShowComponentSettingsState> {
-  ShowComponentSettingsCubit() : super(ShowComponentSettingsInitial()) {}
+  ShowComponentSettingsCubit() : super(ShowComponentSettingsInitial());
 
   void showSettings(ComponentData data) {
     emit(ShowComponentSettingsShow(data));

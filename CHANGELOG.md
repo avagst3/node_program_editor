@@ -15,3 +15,7 @@
 ## 1.0.1
 
 -  Add example code 
+  
+## 1.1.0
+
+- Add call back function when save config

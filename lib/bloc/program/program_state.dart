@@ -9,3 +9,8 @@ final class ProgramEmitted extends ProgramState {
   final Map<String, dynamic> program;
   ProgramEmitted(this.program);
 }
+
+final class ConfigEmitted extends ProgramState {
+  final Map<String, dynamic> config;
+  ConfigEmitted(this.config);
+}

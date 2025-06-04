@@ -22,6 +22,7 @@ class NodeProgramEditor extends StatelessWidget {
   final String? programName;
   final String? userName;
   final void Function(Map<String, dynamic> program)? onProgramEmitted;
+  final void Function(Map<String, dynamic> config)? onConfigEmitted;
   const NodeProgramEditor({
     super.key,
     required this.data,
@@ -31,6 +32,7 @@ class NodeProgramEditor extends StatelessWidget {
     this.programName,
     this.userName,
     this.diagramText,
+    this.onConfigEmitted,
   });
 
   @override
@@ -64,6 +66,8 @@ class NodeProgramEditor extends StatelessWidget {
               case ProgramEmitted():
                 onProgramEmitted?.call(state.program);
                 break;
+              case ConfigEmitted():
+                onConfigEmitted?.call(state.config);
               default:
             }
           },

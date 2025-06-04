@@ -51,58 +51,8 @@ class ProgramActions extends StatelessWidget {
             ),
             IconButton.filledTonal(
               onPressed: () {
-                showDialog(
-                    context: context,
-                    builder: (context) {
-                      final TextEditingController _fileController =
-                          TextEditingController();
-                      final TextEditingController _programName =
-                          TextEditingController();
-
-                      _programName.text = provider.programName ?? "";
-                      return AlertDialog(
-                        title: Text(textProvider.text.saveProgramLabel),
-                        content: SizedBox(
-                          height: 350,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              FolderField(
-                                height: 100,
-                                width: width,
-                                label: "Select save directory",
-                                controller: _fileController,
-                              ),
-                              Divider(),
-                              StrField(
-                                height: 100,
-                                width: width,
-                                label: 'Program Name',
-                                controller: _programName,
-                              ),
-                              Divider(),
-                              FilledButton(
-                                onPressed: () async {
-                                  if (_fileController.text != "" &&
-                                      _programName.text != "") {
-                                    File file = File(
-                                        '${_fileController.text}/${_programName.text}.egp');
-                                    var content =
-                                        policy.serialize(styleProvider);
-                                    styleProvider.toJson();
-                                    await file
-                                        .writeAsString(jsonEncode(content));
-                                    Navigator.pop(context);
-                                  }
-                                },
-                                child: Text("Save"),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    });
+                var content = policy.serialize(styleProvider);
+                context.read<ProgramCubit>().emitConfig(content);
               },
               icon: Icon(Icons.save),
               tooltip: textProvider.text.saveProgramLabel,

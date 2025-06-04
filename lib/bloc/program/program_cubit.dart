@@ -10,4 +10,9 @@ class ProgramCubit extends Cubit<ProgramState> {
     emit(ProgramInitial());
     emit(ProgramEmitted(program));
   }
+
+  void emitConfig(Map<String, dynamic> config) {
+    emit(ProgramInitial());
+    emit(ConfigEmitted(config));
+  }
 }

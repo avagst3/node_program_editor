@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 import '../models/node_models.dart';
@@ -11,7 +14,6 @@ typedef PortPanEndCallback = void Function(DragEndDetails details);
 
 class NodeWidget extends StatelessWidget {
   final Node node;
-  final Widget nodeBody;
   final Color portColor;
   final Color selectedPortColor;
   final int nodeIndex;
@@ -34,7 +36,6 @@ class NodeWidget extends StatelessWidget {
     required this.onPortPanStart,
     required this.onPortPanUpdate,
     required this.onPortPanEnd,
-    required this.nodeBody,
     required this.portColor,
     required this.selectedPortColor,
   });
@@ -52,14 +53,117 @@ class NodeWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double portRadius = 8 * scale;
+    final double nodeBodyWidth = max(
+          150.0,
+          getTextSize("Instructions automates",
+                      TextStyle(fontSize: 24, fontWeight: FontWeight.w700))
+                  .width +
+              40,
+        ) *
+        scale;
 
+    final double headerHeight = 50.0 * scale;
+    final double footerHeight = 40.0 * scale;
+
+    final double calculatedNodeHeight = headerHeight +
+        footerHeight +
+        max(node.inputPorts.length, node.outputPorts.length) *
+            (16 * scale + 4 * scale) +
+        (16 * scale);
+
+    // Met à jour la taille du nœud dans le modèle après la construction du widget.
+    // Cela évite les erreurs de "setState pendant le build".
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (node.size.width != nodeBodyWidth / scale ||
+          node.size.height != calculatedNodeHeight / scale) {
+        node.setSize(Size(nodeBodyWidth / scale, calculatedNodeHeight / scale));
+      }
+    });
     return GestureDetector(
       onTap: onTap,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           // Corps principal du nœud
-          nodeBody,
+          Container(
+            clipBehavior: Clip.hardEdge,
+            width: nodeBodyWidth,
+            height: calculatedNodeHeight,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(
+                  color: isSelected
+                      ? node.data.selectedBorderColor
+                      : Colors.transparent,
+                  width: isSelected ? 3 : 0,
+                  strokeAlign: BorderSide.strokeAlignOutside),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0x02000000),
+                  blurRadius: 42 * scale,
+                  offset: Offset(-8 * scale, 106 * scale),
+                ),
+                BoxShadow(
+                  color: Color(0x06000000),
+                  blurRadius: 36 * scale,
+                  offset: Offset(-5 * scale, 60 * scale),
+                ),
+                BoxShadow(
+                  color: Color(0x1A000000),
+                  blurRadius: 26 * scale,
+                  offset: Offset(-2 * scale, 26 * scale),
+                ),
+                BoxShadow(
+                  color: Color(0x2C000000),
+                  blurRadius: 17 * scale,
+                  offset: Offset(-1 * scale, 7 * scale),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(
+                  height: headerHeight,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8 * scale),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          node.data.icon,
+                          size: 24 * scale,
+                          color: node.data.iconColor,
+                        ),
+                        SizedBox(width: 8 * scale),
+                        Expanded(
+                          child: AutoSizeText(
+                            node.data.nodeName,
+                            style: TextStyle(
+                                fontSize: 24, fontWeight: FontWeight.w700),
+                            maxLines: 1,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(child: Container()), // Espace central vide
+                Container(
+                  height: footerHeight,
+                  color: Color(0xFFF1F1F1),
+                  child: Center(
+                    child: AutoSizeText(
+                      node.data.nodeType,
+                      maxLines: 1,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
           // Ports d'entrée (gauche)
           for (int i = 0; i < node.inputPorts.length; i++)
             Positioned(

@@ -18,7 +18,6 @@ class EditorPainter extends CustomPainter {
   EditorPainter(this.offset, this.scale, this.nodes, this.connections,
       this.tempLink, this.selectedNodeIndex, this.selectedConnectionId);
 
-  
   Node? _getNodeById(int id) {
     try {
       return nodes.firstWhere((n) => n.id == id);
@@ -31,7 +30,7 @@ class EditorPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     // Dessine la grille de fond
     final gridPaint = Paint()
-      ..color = Colors.grey.withAlpha(100)
+      ..color = Color.fromARGB(255, 212, 217, 221)
       ..strokeWidth = 1;
 
     var step = 20 * scale;
@@ -92,13 +91,13 @@ class EditorPainter extends CustomPainter {
   }
 
   /// The `_buildBezier` function creates a Bezier curve path between two given points `p1` and `p2`.
-  /// 
+  ///
   /// Args:
   ///   p1 (Offset): The `p1` parameter represents the starting point of the Bezier curve. It is an
   /// `Offset` object that contains the x and y coordinates of the starting point.
   ///   p2 (Offset): The `p2` parameter represents the end point of the Bezier curve. It is an `Offset`
   /// object that contains the x and y coordinates of the end point.
-  /// 
+  ///
   /// Returns:
   ///   A `Path` object is being returned. The `Path` object is constructed by moving to the starting
   /// point `p1`, then creating a cubic Bezier curve using the control points `c1` and `c2`, and ending

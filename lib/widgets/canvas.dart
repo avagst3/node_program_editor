@@ -11,16 +11,24 @@ import '../core/painter.dart';
 import '../models/connection_model.dart';
 import '../models/node_data_model.dart';
 import '../models/node_models.dart';
-import '../models/port_model.dart';
 import '../models/selected_port_info_model.dart';
 import '../models/temp_link_model.dart';
 
-class ZoomableCanvas extends StatefulWidget {
+class EditorCanvas extends StatefulWidget {
+  final void Function(String json)? onSaveRequest;
+  final void Function(void Function(String) load)? onLoadRequest;
+
+  EditorCanvas({
+    Key? key,
+    this.onSaveRequest,
+    this.onLoadRequest,
+  }) : super(key: key);
+
   @override
-  _ZoomableCanvasState createState() => _ZoomableCanvasState();
+  _EditorCanvasState createState() => _EditorCanvasState();
 }
 
-class _ZoomableCanvasState extends State<ZoomableCanvas> {
+class _EditorCanvasState extends State<EditorCanvas> {
   Offset offset = Offset.zero;
   double scale = 1.0;
   List<Node> nodes = [];
@@ -37,6 +45,8 @@ class _ZoomableCanvasState extends State<ZoomableCanvas> {
 
   String saveCanvasToJson() {
     final data = {
+      'offset': {'dx': offset.dx, 'dy': offset.dy},
+      'scale': scale,
       'nodes': nodes.map((n) => n.toJson()).toList(),
       'connections': connections.map((c) => c.toJson()).toList(),
     };
@@ -47,12 +57,15 @@ class _ZoomableCanvasState extends State<ZoomableCanvas> {
     if (jsonString.isEmpty) return;
     try {
       final data = jsonDecode(jsonString) as Map<String, dynamic>;
-      setState(() {
+      _updateStateAndSave(() {
+        offset = Offset((data['offset'] as Map)['dx'] as double,
+            (data['offset'] as Map)['dy'] as double);
+        scale = data['scale'] as double;
         nodes = (data['nodes'] as List)
-            .map((nodeJson) => Node.fromJson(nodeJson))
+            .map((nodeJson) => Node.fromJson(nodeJson as Map<String, dynamic>))
             .toList();
         connections = (data['connections'] as List)
-            .map((connJson) => Connection.fromJson(connJson))
+            .map((connJson) => Connection.fromJson(connJson as Map<String, dynamic>))
             .toList();
         selectedNodeIndex = null;
         selectedConnectionId = null;
@@ -62,7 +75,13 @@ class _ZoomableCanvasState extends State<ZoomableCanvas> {
     }
   }
 
-  // Trouve un nœud dans la liste par son ID.
+  void _updateStateAndSave(VoidCallback updateCallback) {
+    setState(updateCallback);
+    if (widget.onSaveRequest != null) {
+      widget.onSaveRequest!(saveCanvasToJson());
+    }
+  }
+
   Node? _getNodeById(int id) {
     try {
       return nodes.firstWhere((n) => n.id == id);
@@ -77,39 +96,33 @@ class _ZoomableCanvasState extends State<ZoomableCanvas> {
     super.dispose();
   }
 
-  // Ajoute un nouveau nœud à la position donnée.
   Node addNodeAt(Offset globalPosition, NodeData data) {
     final localCanvasPosition = (globalPosition - offset) / scale;
     return Node(
       position: localCanvasPosition,
       data: data,
       id: nodes.isEmpty ? 1 : nodes.map((n) => n.id).reduce(max) + 1,
-      inputs: [Port(id: 0, maxLinks: 1, label: "In")],
-      outputs: List.generate(
-          5, (i) => Port(id: i, maxLinks: -1, label: "Out ${i + 1}")),
+      inputs: data.inputPorts,
+      outputs: data.outputPorts,
     );
   }
 
-  // Compte le nombre de connexions sur un port spécifique.
   int _countConnectionsForPort(int nodeId, int portId, bool isOutput) {
     int count = 0;
     for (final connection in connections) {
       if (isOutput) {
-        if (connection.fromNodeId == nodeId && connection.fromPortId == portId)
-          count++;
+        if (connection.fromNodeId == nodeId && connection.fromPortId == portId) count++;
       } else {
-        if (connection.toNodeId == nodeId && connection.toPortId == portId)
-          count++;
+        if (connection.toNodeId == nodeId && connection.toPortId == portId) count++;
       }
     }
     return count;
   }
 
-  // Démarre une liaison depuis un port.
   void _handlePortPanStart(
       int nodeIndex, int portIndex, bool isOutput, DragStartDetails details) {
     final portPos = nodes[nodeIndex].getPortCenterAbsolute(portIndex, isOutput);
-    setState(() {
+    _updateStateAndSave(() {
       _isLinkingMode = true;
       _selectedPortForLinking = SelectedPortInfo(
           nodeIndex: nodeIndex, portIndex: portIndex, isOutput: isOutput);
@@ -123,14 +136,12 @@ class _ZoomableCanvasState extends State<ZoomableCanvas> {
     });
   }
 
-  // Met à jour la position du lien temporaire.
   void _handlePortPanUpdate(DragUpdateDetails details) {
     if (_isLinkingMode) {
-      setState(() => tempLink!.currentDragPosition += details.delta / scale);
+      _updateStateAndSave(() => tempLink!.currentDragPosition += details.delta / scale);
     }
   }
 
-  // Termine une liaison depuis un port.
   void _handlePortPanEnd(DragEndDetails details) {
     if (!_isLinkingMode) return;
 
@@ -163,7 +174,7 @@ class _ZoomableCanvasState extends State<ZoomableCanvas> {
               ? fromNode.outputPorts[from.portIndex]
               : fromNode.inputPorts[from.portIndex];
 
-          setState(() {
+          _updateStateAndSave(() {
             connections.add(Connection(
               fromNodeId: from.isOutput ? fromNode.id : targetNode.id,
               fromPortId: from.isOutput ? fromPort.id : targetPort.id,
@@ -181,24 +192,22 @@ class _ZoomableCanvasState extends State<ZoomableCanvas> {
       if (linkCreated) break;
     }
 
-    setState(() {
+    _updateStateAndSave(() {
       tempLink = null;
       _isLinkingMode = false;
       _selectedPortForLinking = null;
     });
   }
 
-  // Gère le déplacement du canevas ou d'un nœud.
   void _onCanvasPanUpdate(DragUpdateDetails details) {
     if (selectedNodeIndex != null) {
-      setState(
+      _updateStateAndSave(
           () => nodes[selectedNodeIndex!].position += details.delta / scale);
     } else {
-      setState(() => offset += details.delta);
+      _updateStateAndSave(() => offset += details.delta);
     }
   }
 
-  // Calcule un point sur une courbe de Bézier.
   Offset _getBezierPoint(Offset p1, Offset c1, Offset c2, Offset p2, double t) {
     final double mt = 1 - t;
     return Offset(
@@ -213,7 +222,6 @@ class _ZoomableCanvasState extends State<ZoomableCanvas> {
     );
   }
 
-  // Détecte si un clic a touché une connexion.
   int? _hitTestConnections(Offset tapPositionLocalToCanvas) {
     const double hitTolerance = 20.0;
     for (var link in connections) {
@@ -243,10 +251,9 @@ class _ZoomableCanvasState extends State<ZoomableCanvas> {
     return null;
   }
 
-  // Gère les clics sur le canevas pour la sélection.
   void _handleCanvasClick(Offset clickPosition) {
     if (_isLinkingMode) {
-      setState(() {
+      _updateStateAndSave(() {
         tempLink = null;
         _isLinkingMode = false;
         _selectedPortForLinking = null;
@@ -256,7 +263,7 @@ class _ZoomableCanvasState extends State<ZoomableCanvas> {
     final canvasPos = (clickPosition - offset) / scale;
     final hitLinkId = _hitTestConnections(canvasPos);
     if (hitLinkId != null) {
-      setState(() {
+      _updateStateAndSave(() {
         selectedConnectionId = hitLinkId;
         selectedNodeIndex = null;
       });
@@ -269,16 +276,15 @@ class _ZoomableCanvasState extends State<ZoomableCanvas> {
         break;
       }
     }
-    setState(() {
+    _updateStateAndSave(() {
       selectedNodeIndex = newSelectedNodeIndex;
       selectedConnectionId = null;
     });
   }
 
-  // Actions de suppression, copier et coller.
   void _deleteNode() {
     if (_isLinkingMode || selectedNodeIndex == null) return;
-    setState(() {
+    _updateStateAndSave(() {
       final nodeToDeleteId = nodes[selectedNodeIndex!].id;
       nodes.removeAt(selectedNodeIndex!);
       connections.removeWhere((link) =>
@@ -290,7 +296,7 @@ class _ZoomableCanvasState extends State<ZoomableCanvas> {
 
   void _deleteConnection() {
     if (_isLinkingMode || selectedConnectionId == null) return;
-    setState(() {
+    _updateStateAndSave(() {
       connections.removeWhere((link) => link.id == selectedConnectionId);
       selectedConnectionId = null;
     });
@@ -311,7 +317,7 @@ class _ZoomableCanvasState extends State<ZoomableCanvas> {
 
   void _pasteNode() {
     if (_isLinkingMode || copiedNode == null) return;
-    setState(() {
+    _updateStateAndSave(() {
       final newNode = Node(
         position: copiedNode!.position + Offset(20, 20),
         data: copiedNode!.data,
@@ -330,6 +336,11 @@ class _ZoomableCanvasState extends State<ZoomableCanvas> {
   void initState() {
     super.initState();
     focusNode.requestFocus();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.onLoadRequest != null) {
+        widget.onLoadRequest!(loadCanvasFromJson);
+      }
+    });
   }
 
   @override
@@ -338,7 +349,7 @@ class _ZoomableCanvasState extends State<ZoomableCanvas> {
       body: DragTarget<NodeData>(
         onAcceptWithDetails: (details) {
           if (_isLinkingMode) return;
-          setState(() {
+          _updateStateAndSave(() {
             nodes.add(addNodeAt(details.offset, details.data));
             selectedNodeIndex = nodes.length - 1;
           });
@@ -346,8 +357,7 @@ class _ZoomableCanvasState extends State<ZoomableCanvas> {
         builder: (context, _, __) => Shortcuts(
           shortcuts: <LogicalKeySet, Intent>{
             LogicalKeySet(LogicalKeyboardKey.delete): const DeleteNodeIntent(),
-            LogicalKeySet(LogicalKeyboardKey.backspace):
-                const DeleteNodeIntent(),
+            LogicalKeySet(LogicalKeyboardKey.backspace): const DeleteNodeIntent(),
             LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyC):
                 const CopyNodeIntent(),
             LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyV):
@@ -359,11 +369,10 @@ class _ZoomableCanvasState extends State<ZoomableCanvas> {
                 if (selectedNodeIndex != null)
                   _deleteNode();
                 else if (selectedConnectionId != null) _deleteConnection();
+                return null;
               }),
-              CopyNodeIntent:
-                  CallbackAction<CopyNodeIntent>(onInvoke: (_) => _copyNode()),
-              PasteNodeIntent:
-                  CallbackAction<PasteNodeIntent>(onInvoke: (_) => _pasteNode())
+              CopyNodeIntent: CallbackAction<CopyNodeIntent>(onInvoke: (_) => _copyNode()),
+              PasteNodeIntent: CallbackAction<PasteNodeIntent>(onInvoke: (_) => _pasteNode())
             },
             child: Focus(
               autofocus: true,
@@ -373,14 +382,13 @@ class _ZoomableCanvasState extends State<ZoomableCanvas> {
                   if (_isLinkingMode) return;
                   if (event is PointerScrollEvent) {
                     final zoomAmount = event.scrollDelta.dy > 0 ? 0.9 : 1.1;
-                    setState(
+                    _updateStateAndSave(
                         () => scale = (scale * zoomAmount).clamp(0.1, 5.0));
                   }
                 },
                 child: GestureDetector(
                   onPanUpdate: _onCanvasPanUpdate,
-                  onTapUp: (details) =>
-                      _handleCanvasClick(details.localPosition),
+                  onTapUp: (details) => _handleCanvasClick(details.localPosition),
                   child: Stack(
                     children: [
                       CustomPaint(
@@ -407,7 +415,7 @@ class _ZoomableCanvasState extends State<ZoomableCanvas> {
                             scale: scale,
                             onTap: () {
                               if (_isLinkingMode) return;
-                              setState(() {
+                              _updateStateAndSave(() {
                                 selectedNodeIndex = index;
                                 selectedConnectionId = null;
                               });
@@ -418,7 +426,6 @@ class _ZoomableCanvasState extends State<ZoomableCanvas> {
                             onPortPanUpdate: _handlePortPanUpdate,
                             onPortPanEnd: _handlePortPanEnd,
                             selectedPortForLinking: _selectedPortForLinking,
-                            nodeBody: node.data.nodeBody,
                             portColor: node.data.portColor,
                             selectedPortColor: node.data.selectedPortColor,
                           ),

@@ -39,3 +39,4 @@ All those changes bring some trouble and we where forced to remove some features
 #### New features
 
 - Drag to link
+- keyboard shortcut to copy, past, delete

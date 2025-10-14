@@ -28,6 +28,8 @@ The 2.0.0 update is a major update that can be see as a new package.
 We rebuild all features of this package from scratch the goal is to have no external dependencies.
 All those changes bring some trouble and we where forced to remove some features
 
+2.0.0 is a migration an incomplete version but I really need the update for a personal project.
+
 #### Remove from 1.0.0
 
 - Pre-build node input
@@ -35,6 +37,8 @@ All those changes bring some trouble and we where forced to remove some features
 - Mini map
 - Click to link
 - To program
+- Resize node
+- Link type colors
   
 #### New features
 

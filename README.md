@@ -9,16 +9,47 @@ This project is curently made for a school project some functions can be partial
 
 If you had any advice or any trouble to notify, feel free to contact me !
 
-## Description
-
-The package provide a NodeProgramEditor widget witch is an editor dashboard who look like this :
-
 ![alt text](image.png)
 
+## Import 
+
+```
+ flutter pub add node_program_editor
+```
+
+## Usage 
+
+The package provide 3 widgets to use :
+
+### EditorCanvas
+
+EditorCanvas is the main widget of the package. It display the grid and the nodes. 
+The widget is a flutter DragTarget waiting for NodeData object.
+
+You also have two call back : 
+onSaveRequest
+onLoadRequest
+
+Who respectively convert your diagram to json and create a diagram from your json.
+
+### NodeData
+
+NodeData handle all the the settings for the node :
+- Input and output port data
+- Icon
+- Icon color
+- Ports color
+- Selected color
+- Type name
+- Name
+
+### Port
+
+Port handle information for link connection. You can set for port a maximum of connections
 
 ## RoadMap
 
-- Create blocks parameters object to fit more with parameters field
-- Create design object to offer more design option to the blocks
-- Improve link UX with drag link
-- Improve link style options
+- Add Port type
+- Add Port type colors
+- Handle update on nodes
+

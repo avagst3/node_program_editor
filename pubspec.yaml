@@ -1,6 +1,6 @@
 name: node_program_editor
-description: "A drag and drop UI to create json block sequence, inspired by LabView and Simulink"
-version: 1.1.0
+description: "A drag and drop base to create node graph"
+version: 2.0.0
 homepage: https://github.com/avagst3/node_program_editor#
 
 environment:
@@ -10,14 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  diagram_editor: ^0.2.3
-  flutter_bloc: ^9.1.0
-  bloc: ^9.0.0
-  provider: ^6.1.2
-  flutter_colorpicker: ^1.1.0
   auto_size_text: ^3.0.0
-  file_picker: ^10.1.9
-  meta: ^1.15.0
 
 dev_dependencies:
   flutter_test:

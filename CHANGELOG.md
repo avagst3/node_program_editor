@@ -44,3 +44,7 @@ All those changes bring some trouble and we where forced to remove some features
 
 - Drag to link
 - keyboard shortcut to copy, past, delete
+  
+## 2.1.0
+
+- Fix graph to and from json

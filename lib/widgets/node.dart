@@ -7,24 +7,52 @@ import '../models/node_models.dart';
 import '../models/port_model.dart';
 import '../models/selected_port_info_model.dart';
 
+/// The `typedef PortPanStartCallback` is defining a function type in Dart. It is creating an alias
+/// `PortPanStartCallback` for a function that takes three parameters: `portIndex` of type `int`,
+/// `isOutput` of type `bool`, and `details` of type `DragStartDetails`, and returns `void`. This allows
+/// you to define functions with this signature and use them as callbacks in your code.
 typedef PortPanStartCallback = void Function(
     int portIndex, bool isOutput, DragStartDetails details);
+/// The `typedef PortPanUpdateCallback = void Function(DragUpdateDetails details);` line in the code is
+/// defining a function type alias in Dart. It creates an alias `PortPanUpdateCallback` for a function
+/// that takes one parameter `details` of type `DragUpdateDetails` and returns `void`. This allows you
+/// to define functions with this specific signature and use them as callbacks in your code where
+/// `PortPanUpdateCallback` type is expected.
 typedef PortPanUpdateCallback = void Function(DragUpdateDetails details);
+/// The `typedef PortPanEndCallback = void Function(DragEndDetails details);` line in the code is
+/// defining a function type alias in Dart. It creates an alias `PortPanEndCallback` for a function that
+/// takes one parameter `details` of type `DragEndDetails` and returns `void`. This allows you to define
+/// functions with this specific signature and use them as callbacks in your code where
+/// `PortPanEndCallback` type is expected.
 typedef PortPanEndCallback = void Function(DragEndDetails details);
 
-class NodeWidget extends StatelessWidget {
-  final Node node;
-  final Color portColor;
-  final Color selectedPortColor;
-  final int nodeIndex;
-  final bool isSelected;
-  final void Function() onTap;
-  final double scale;
-  final SelectedPortInfo? selectedPortForLinking;
-  final PortPanStartCallback onPortPanStart;
-  final PortPanUpdateCallback onPortPanUpdate;
-  final PortPanEndCallback onPortPanEnd;
 
+/// The `NodeWidget` class in Dart represents a widget that displays a node with input and output ports,
+/// allowing for interaction through gestures.
+class NodeWidget extends StatelessWidget {
+  /// 
+  final Node node;
+  /// 
+  final Color portColor;
+  /// `
+  final Color selectedPortColor;
+  /// 
+  final int nodeIndex;
+  /// 
+  final bool isSelected;
+  /// 
+  final void Function() onTap;
+  /// 
+  final double scale;
+  /// 
+  final SelectedPortInfo? selectedPortForLinking;
+  /// 
+  final PortPanStartCallback onPortPanStart;
+  /// 
+  final PortPanUpdateCallback onPortPanUpdate;
+  /// 
+  final PortPanEndCallback onPortPanEnd;
+  /// Constructor
   const NodeWidget({
     super.key,
     required this.node,
@@ -40,7 +68,20 @@ class NodeWidget extends StatelessWidget {
     required this.selectedPortColor,
   });
 
-  // Calcule la taille d'un texte pour dimensionner le nœud.
+
+  /// The `getTextSize` function calculates and returns the size of the text when rendered with the
+  /// specified style.
+  /// 
+  /// Args:
+  ///   text (String): The `text` parameter is a String that represents the text for which you want to
+  /// calculate the size.
+  ///   style (TextStyle): The `style` parameter in the `getTextSize` method is of type `TextStyle`. It
+  /// is used to specify the styling properties for the text that will be measured. This can include
+  /// properties such as font size, font weight, color, and more. The `TextStyle` class in Flutter
+  /// allows you
+  /// 
+  /// Returns:
+  ///   The `Size` of the text after it has been styled and laid out using the provided `TextStyle`.
   Size getTextSize(String text, TextStyle style) {
     final TextPainter textPainter = TextPainter(
       text: TextSpan(text: text, style: style),
@@ -71,8 +112,6 @@ class NodeWidget extends StatelessWidget {
             (16 * scale + 4 * scale) +
         (16 * scale);
 
-    // Met à jour la taille du nœud dans le modèle après la construction du widget.
-    // Cela évite les erreurs de "setState pendant le build".
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (node.size.width != nodeBodyWidth / scale ||
           node.size.height != calculatedNodeHeight / scale) {
@@ -84,7 +123,6 @@ class NodeWidget extends StatelessWidget {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          // Corps principal du nœud
           Container(
             clipBehavior: Clip.hardEdge,
             width: nodeBodyWidth,
@@ -150,7 +188,7 @@ class NodeWidget extends StatelessWidget {
                     ),
                   ),
                 ),
-                Expanded(child: Container()), // Espace central vide
+                Expanded(child: Container()), 
                 Container(
                   height: footerHeight,
                   color: Color(0xFFF1F1F1),
@@ -164,7 +202,6 @@ class NodeWidget extends StatelessWidget {
               ],
             ),
           ),
-          // Ports d'entrée (gauche)
           for (int i = 0; i < node.inputPorts.length; i++)
             Positioned(
               left: -portRadius,
@@ -180,7 +217,6 @@ class NodeWidget extends StatelessWidget {
               ),
             ),
 
-          // Ports de sortie (droite)
           for (int i = 0; i < node.outputPorts.length; i++)
             Positioned(
               right: -portRadius,
@@ -200,6 +236,27 @@ class NodeWidget extends StatelessWidget {
     );
   }
 
+  /// This Dart function builds a widget that displays a port with a label, allowing for interaction
+  /// through gestures.
+  /// 
+  /// Args:
+  ///   port (Port): The `port` parameter is of type `Port` and is required for the
+  /// `_buildPortWithLabel` function.
+  ///   portIndex (int): The `portIndex` parameter is used to specify the index of the port within a
+  /// list of ports. It helps in identifying the specific port that is being rendered or interacted with
+  /// in the UI.
+  ///   isOutput (bool): The `isOutput` parameter in the `_buildPortWithLabel` function is a boolean
+  /// value that indicates whether the port is an output port or not. If `isOutput` is `true`, the
+  /// function will return a `Row` widget with the label followed by the port widget. If `
+  ///   isHighlighted (bool): The `isHighlighted` parameter in the `_buildPortWithLabel` function is
+  /// used to determine whether the port should be displayed with a different color to indicate that it
+  /// is highlighted. If `isHighlighted` is `true`, the color of the port will be set to
+  /// `selectedPortColor`, otherwise
+  /// 
+  /// Returns:
+  ///   The `_buildPortWithLabel` function returns a `Widget` that consists of a `Row` containing either
+  /// the `labelWidget` followed by a `SizedBox` and then the `portWidget`, or the `portWidget` followed
+  /// by a `SizedBox` and then the `labelWidget`, based on the value of the `isOutput` parameter.
   Widget _buildPortWithLabel({
     required Port port,
     required int portIndex,

@@ -30,7 +30,7 @@ class EditorPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     // Dessine la grille de fond
     final gridPaint = Paint()
-      ..color = Color.fromARGB(255, 212, 217, 221)
+      ..color = Color(0xFFB6C3CE)
       ..strokeWidth = 1;
 
     var step = 20 * scale;
